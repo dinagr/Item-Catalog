@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
  
-from database_setup import Base, Category, Item
+from database_setup import Base, User, Category, Item
 #from flask.ext.sqlalchemy import SQLAlchemy
 from random import randint
 import datetime

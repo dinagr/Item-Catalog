@@ -10,12 +10,26 @@ h1 {
 	font-family: 'Montserrat', sans-serif;
 	color:    #808080;
 	font-size: 45px;
+	font-weight: 700;
 }
 
 h3{
 	font-family: 'Metrophobic', Arial, serif; 
+	font-weight: 700; 
+	color:  #808080;
+	font-size: 30px;
+}
+
+strong{
 	font-weight: 800; 
-	color:  #cc0000;
+}
+
+.user{
+	font-family: 'Metrophobic', Arial, serif; 
+	font-weight: 600; 
+	color:  #000000;
+	font-size: 14px;
+	margin-top: 5%;
 }
 
 ul{
@@ -37,6 +51,10 @@ li{
 	margin-top: 2%;
 }
 
+.loginButtons{
+	margin-top: 10%;
+}
+
 .edit{
 	background-image: url('edit.jpg');	
 }
@@ -49,7 +67,7 @@ li{
 .list-group-item{
 	background-color: transparent;
 	font-family: 'Metrophobic', Arial, serif; 
-	font-weight: 800; 
+	font-weight: 700; 
 	font-size: 14px;
 }
 
@@ -99,4 +117,15 @@ p.list-group-item{
 	font-size: 16px;
 	margin-bottom: 2%;
 	margin-top: 2%;
+}
+
+.del{
+	width: 10%;
+	height: 10%;
+}
+
+.categoryInITem{
+	color:  #000000;
+	font-weight: 700;
+	font-size: 18px;
 }

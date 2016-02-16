@@ -31,13 +31,17 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+
 
     @property
     def serialize(self):
         
         return{
             'id': self.id,
-            'name' : self.name
+            'name' : self.name,
+            'user_id' : self.user_id
             }
 
 
@@ -50,6 +54,9 @@ class Item(Base):
     timestmp = Column(DateTime(timezone=True), default=func.now())
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+
 
     @property
     def serialize(self):
@@ -59,7 +66,8 @@ class Item(Base):
             'description' : self.description,
             'id' : self.id,
             'category_id' : self.category_id,
-            'timestmp' : self.timestmp
+            'timestmp' : self.timestmp,
+            'user_id' : self.user_id
             }
 
 
