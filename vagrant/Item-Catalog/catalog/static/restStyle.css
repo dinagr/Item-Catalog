@@ -20,6 +20,13 @@ h3{
 	font-size: 30px;
 }
 
+.logginMessage{
+	font-family: 'Metrophobic', Arial, serif; 
+	font-weight: 600; 
+	color:  #000000;
+	font-size: 14px;
+}
+
 strong{
 	font-weight: 800; 
 }
@@ -128,4 +135,9 @@ p.list-group-item{
 	color:  #000000;
 	font-weight: 700;
 	font-size: 18px;
+}
+
+img{
+	max-width: 100px; 
+	max-height: 100px;
 }

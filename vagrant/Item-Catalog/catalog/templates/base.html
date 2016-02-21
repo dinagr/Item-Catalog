@@ -4,24 +4,26 @@
 	<link rel=stylesheet type=text/css href="{{url_for('static', filename='bootstrap.css')}}">
     <link rel=stylesheet type=text/css href="{{url_for('static', filename='restStyle.css')}}">
 </head>
-<body class="subBcg">
+<body class="mainBcg">
 	<div class = "container">
 		<div class="row headline">
-			{%if 1 %}
+			{%if login_session.username %}
+			<div class="col-md-2 login">
+				<a class="btn btn-warning btn-sm" href='{{url_for('disconnect') }}' role="button">Disconnect</a>
+			</div>
+			{%else %}
 			<div class="col-md-2 login">
 				<a class="btn btn-warning btn-sm" href='{{url_for('showLogin') }}' role="button">Login</a>
-			</div>
-			{%endif%}
-			{%if 0 %}
-			<div class="col-md-2 login">
-				<a class="btn btn-warning btn-sm" href='{{url_for('showLogin') }}' role="button">Disconnect</a>
 			</div>
 			{%endif%}
 			<div class="col-md-8">
 				<h1>Catalog App</h1>
 			</div>
 			<div class="col-md-2">
-				<div class="user"></div>
+				<div class="user">{{login_session.username}}</div>
+				{% if login_session.provider %}
+					<div class="user">{{login_session.provider}}</div>
+				{% endif %}
 			</div>
 		</div>
 		{% block content %}

@@ -8,7 +8,22 @@
 		</div>
 		<div class="row">
 			<div class="col-md-12">
-				<form action="{{url_for('newItemInCategory', category_id=category.id)}}" method = 'POST' role="form">
+				{% with messages = get_flashed_messages() %}
+		        {% if messages %}
+		            <ul>
+		            {% for message in messages%}
+		            <div class="alert alert-danger">
+						{{message}}
+					</div>
+		            {% endfor %}
+		            </ul>
+		        {% endif %}
+		            {% endwith %}
+		    </div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<form action="{{url_for('newItemInCategory', category_name=category.name)}}" method = 'POST' role="form">
 					<div class="form-group">
 						<label for="name">Name:</label>
 						<input type="text" class="form-control" id="name" name="name"> 
@@ -18,11 +33,15 @@
 						    <input type="text" class="form-control" id="description" name="description"> 
 					</div>
 					<div class="form-group">
+							<label for="name">Picture:</label>
+						    <input type="text" class="form-control" id="picture" name="picture"> 
+					</div>
+					<div class="form-group">
 							<label for="name">Category:</label>
 						    <input type="text" class="form-control" id="category" name="category" value={{category.name}} disabled> 
 					</div>
 					<button type="submit" value="create" class="btn btn-default">Submit</button>
-					<a class="btn btn-danger" href="{{ url_for('categoryItems', category_id=category.id)}}" role="button">Cancel</a>
+					<a class="btn btn-danger" href="{{ url_for('categoryItems', category_name=category.name, login_session=login_session)}}" role="button">Cancel</a>
 				</form>
 			</div>
 		</div>

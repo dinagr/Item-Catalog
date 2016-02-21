@@ -52,6 +52,7 @@ class Item(Base):
     name = Column(String(80), nullable=False)
     description = Column(String, nullable=False)
     timestmp = Column(DateTime(timezone=True), default=func.now())
+    picture = Column(String(250))
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
     user_id = Column(Integer, ForeignKey('user.id'))
@@ -67,6 +68,7 @@ class Item(Base):
             'id' : self.id,
             'category_id' : self.category_id,
             'timestmp' : self.timestmp,
+            'picture' : self.picture,
             'user_id' : self.user_id
             }
 

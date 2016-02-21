@@ -29,42 +29,6 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-# Add pagintation
-
-class Pagination(object):
-
-    def __init__(self, page, per_page, total_count):
-        self.page = page
-        self.per_page = per_page
-        self.total_count = total_count
-
-    @property
-    def pages(self):
-        return int(ceil(self.total_count / float(self.per_page)))
-
-    @property
-    def has_prev(self):
-        return self.page > 1
-
-    @property
-    def has_next(self):
-        return self.page < self.pages
-
-    def iter_pages(self, left_edge=2, left_current=2,
-                   right_current=5, right_edge=2):
-        last = 0
-        for num in xrange(1, self.pages + 1):
-            if num <= left_edge or \
-               (num > self.page - left_current - 1 and \
-                num < self.page + right_current) or \
-               num > self.pages - right_edge:
-                if last + 1 != num:
-                    yield None
-                yield num
-                last = num
-                
-# Finish pagintation
-
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
@@ -239,14 +203,13 @@ def gconnect():
     login_session['user_id'] = user_id
 
     output = ''
-    output += '<h1>Welcome, '
+    """output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '"""
     flash("you are now logged in as %s" % login_session['username'])
-    print "done!"
     return output
 
 # User Helper Functions
