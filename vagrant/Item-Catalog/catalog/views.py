@@ -8,23 +8,34 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Category, Item
 import httplib2
 import re
-    
+
+# The main page of the app
+# Presents all the categories and the recents added items    
 @app.route('/')
 @app.route('/main/')
 def allCategories():
     categories = app.db.query(Category).all()
-    itemsByCategory = app.db.query(Item.name, Category.name).filter(Item.category_id==Category.id).order_by(Item.timestmp.desc()).limit(10)
+    itemsByCategory = app.db.query(Item.name, Category.name).\
+                      filter(Item.category_id==Category.id).\
+                      order_by(Item.timestmp.desc()).limit(10)
     users = app.db.query(User).all()
     for user in users:
         print(user.name,user.id, user.email, user.picture)
-    return render_template('main.html', categories = categories, items = itemsByCategory, login_session = login_session)
+    return render_template('main.html', categories = categories,
+                           items = itemsByCategory,
+                           login_session = login_session)
+
+# Displays all the items of this category
 
 @app.route('/categories/<string:category_name>/')
 def categoryItems(category_name):
     category = app.db.query(Category).filter(Category.name==category_name).one()
     categories = app.db.query(Category).all()
-    items = app.db.query(Item.id, Item.name).filter(Item.category_id==category.id).all()
-    numOfItems = app.db.query(func.count('*')).select_from(Item).filter(Item.category_id==category.id).scalar()
+    items = app.db.query(Item.id, Item.name).\
+            filter(Item.category_id==category.id).all()
+    numOfItems = app.db.query(func.count('*')).\
+                 select_from(Item).\
+                 filter(Item.category_id==category.id).scalar()
     return render_template('categoryitems.html', 
                            category_user_id = category.user_id,
                            category_name = category.name,
@@ -32,6 +43,8 @@ def categoryItems(category_name):
                            categories = categories,
                            numOfItems = numOfItems,
                            login_session = login_session)
+
+# Edit category details
 
 @app.route('/categories/<string:category_name>/edit/', methods=['POST','GET'])
 def editCategory(category_name):
@@ -42,7 +55,11 @@ def editCategory(category_name):
         flash("The category was edited successfully!")
         return allCategories()
     else:
-        return render_template('categoryeditmenu.html', category=category, login_session = login_session) 
+        return render_template('categoryeditmenu.html',
+                               category=category,
+                               login_session = login_session)
+
+# Delete a category - this will delete the items in the categoru as well
 
 @app.route('/categories/<string:category_name>/delete/', methods=['POST','GET'])
 def deleteCategory(category_name):
@@ -58,8 +75,11 @@ def deleteCategory(category_name):
         flash("The category and the items were deleted successfully!")
         return allCategories()
     else:
-        return render_template('categoryideletemenu.html', category = category, login_session = login_session)
+        return render_template('categoryideletemenu.html',
+                               category = category,
+                               login_session = login_session)
 
+# Add a new category to the system
 
 @app.route('/categories/new/', methods=['POST','GET'])
 def newCategory():
@@ -67,7 +87,8 @@ def newCategory():
         inputName = request.form['name'].strip()
         if not inputName:
             flash("Please enter the catgoery name")
-            return render_template('newcategoriemenu.html', login_session = login_session)
+            return render_template('newcategoriemenu.html',
+                                   login_session = login_session)
         else:
             newCategory = Category(
                 name=inputName, user_id = login_session['user_id'])
@@ -76,19 +97,31 @@ def newCategory():
             flash("A new category was created successfully!")
             return allCategories()
     else:
-        return render_template('newcategoriemenu.html', login_session = login_session)  
+        return render_template('newcategoriemenu.html',
+                               login_session = login_session)
+    
+# Display details of a specific item
 
-@app.route('/categories/<string:category_name>/<string:item_name>/', methods=['POST','GET'])
+@app.route('/categories/<string:category_name>/<string:item_name>/',
+           methods=['POST','GET'])
 def categoryItemDetails(category_name,item_name):
     category = app.db.query(Category).filter(Category.name==category_name).one()
-    items = app.db.query(Item).filter(Item.name==item_name, Item.category_id == category.id).one()
+    items = app.db.query(Item).\
+            filter(Item.name==item_name, Item.category_id == category.id).one()
     categories = app.db.query(Category).all()
-    return render_template('categorieitemmenu.html',categories=categories, items=items,category_name=category.name, login_session = login_session)
+    return render_template('categorieitemmenu.html',
+                           categories=categories,
+                           items=items,category_name=category.name,
+                           login_session = login_session)
 
-@app.route('/categories/<string:category_name>/<string:item_name>/edit', methods=['POST','GET'])
+# Edit item details
+
+@app.route('/categories/<string:category_name>/<string:item_name>/edit',
+           methods=['POST','GET'])
 def editCategoryItem(category_name, item_name):
     category = app.db.query(Category).filter(Category.name==category_name).one()
-    item = app.db.query(Item).filter(Item.name==item_name, Item.category_id==category.id).one()
+    item = app.db.query(Item).\
+           filter(Item.name==item_name, Item.category_id==category.id).one()
     categories = app.db.query(Category).all()
     if request.method == 'POST':
         if(request.form['name']<>''):
@@ -99,21 +132,31 @@ def editCategoryItem(category_name, item_name):
             item.picture=request.form['picture']
         if(request.form['category']<>''):
             category_name_new=request.form['category']
-            categoryNew = app.db.query(Category).filter(Category.name==category_name_new).one()
+            categoryNew = app.db.query(Category).\
+                          filter(Category.name==category_name_new).one()
             item.category = categoryNew
         app.db.commit()
         items = app.db.query(Item).filter(Item.category_id==category.id).all()
         flash("The item was edited successfully!")
-        return render_template('categoryitems.html',category_name=category.name, items=items,
+        return render_template('categoryitems.html',
+                               category_name=category.name,
+                               items=items,
                                categories=categories, category=category
                                ,login_session=login_session)
     else:
-        return render_template('editcategorieitemmenu.html', category_name=category_name, item=item, categories=categories, login_session = login_session) 
+        return render_template('editcategorieitemmenu.html',
+                               category_name=category_name,
+                               item=item, categories=categories,
+                               login_session = login_session)
 
-@app.route('/categories/<string:category_name>/<string:item_name>/delete', methods=['POST','GET'])
+# Delete item
+
+@app.route('/categories/<string:category_name>/<string:item_name>/delete',
+           methods=['POST','GET'])
 def deleteCategoryItem(category_name, item_name):
     category = app.db.query(Category).filter(Category.name==category_name).one()
-    item = app.db.query(Item).filter(Item.name==item_name, Item.category_id==category.id).one()
+    item = app.db.query(Item).\
+           filter(Item.name==item_name, Item.category_id==category.id).one()
     categories = app.db.query(Category).all()
     if request.method == 'POST':
         app.db.delete(item)
@@ -124,7 +167,11 @@ def deleteCategoryItem(category_name, item_name):
                                items=items, categories=categories,
                                category=category, login_session=login_session)
     else:
-        return render_template('deletecategorieitemmenu.html', category_name = category_name, item=item, login_session=login_session)
+        return render_template('deletecategorieitemmenu.html',
+                               category_name = category_name,
+                               item=item, login_session=login_session)
+
+# Add a new item
 
 @app.route('/categories/<string:category_name>/new/', methods=['POST','GET'])
 def newItemInCategory(category_name):
@@ -135,7 +182,9 @@ def newItemInCategory(category_name):
         inputEmail = request.form['email'].strip()
         if not inputName or not inputDescription:
             flash("Please enter the item name and description")
-            return render_template('newitemincategoriemenu.html', category = category, login_session=login_session)
+            return render_template('newitemincategoriemenu.html',
+                                   category = category,
+                                   login_session=login_session)
         else:
             newItem = Item(
                 name=inputName,
@@ -145,11 +194,15 @@ def newItemInCategory(category_name):
                 user_id = login_session['user_id'])
             app.db.add(newItem)
             app.db.commit()
-            items = app.db.query(Item.id, Item.name).filter(Item.category_id==category.id).all()
+            items = app.db.query(Item.id, Item.name).\
+                    filter(Item.category_id==category.id).all()
             categories = app.db.query(Category).all()
             flash("The items was created successfully!")
             return render_template('categoryitems.html',
                                    items=items, category_name=category_name,
-                                   categories = categories, login_session=login_session)
+                                   categories = categories,
+                                   login_session=login_session)
     else:
-        return render_template('newitemincategoriemenu.html', category = category, login_session=login_session)
+        return render_template('newitemincategoriemenu.html',
+                               category = category,
+                               login_session=login_session)

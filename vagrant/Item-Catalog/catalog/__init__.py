@@ -11,6 +11,10 @@ session = DBSession()
 import data
 app = Flask(__name__)
 app.db = session
+# Loging in and loging out with google plus anf facebook functionality
 import catalog.signin
+# The app functionality
 import catalog.views
+# API
+import catalog.api
 
