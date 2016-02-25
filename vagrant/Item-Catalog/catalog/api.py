@@ -11,20 +11,21 @@ import httplib2
 # JSON APIs to view Categories and Items Information
 
 # View all categories
-@app.route('/categories/JSON')
+@app.route('/main/JSON')
+@app.route('/JSON')
 def categoriesJSON():
     categories = app.db.query(Category).all()
     return jsonify(categories=[c.serialize for c in categories])
 
 # View all items in a specific category
-@app.route('/categories/<string:category_name>/items/JSON')
+@app.route('/categories/<string:category_name>/JSON')
 def categoriesItemsJSON(category_name):
     category = app.db.query(Category).filter(Category.name==category_name).one()
     items = app.db.query(Item).filter(Item.category_id==category.id).all()
     return jsonify(items=[i.serialize for i in items])
 
 # View a specific item
-@app.route('/categories/<string:category_name>/items/<string:item_name>/JSON')
+@app.route('/categories/<string:category_name>/<string:item_name>/JSON')
 def itemJSON(category_name, item_name):
     item = app.db.query(Item).filter(Category.name==category_name,
                                      Item.name==item_name).one()

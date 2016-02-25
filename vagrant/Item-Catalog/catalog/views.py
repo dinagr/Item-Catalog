@@ -50,10 +50,16 @@ def categoryItems(category_name):
 def editCategory(category_name):
     category = app.db.query(Category).filter(Category.name==category_name).one()
     if request.method == 'POST':
-        category.name=request.form['name']
-        app.db.commit()
-        flash("The category was edited successfully!")
-        return allCategories()
+      if login_session:
+        if login_session['user_id'] == category.user_id:
+          category.name=request.form['name']
+          app.db.commit()
+          flash("The category was edited successfully!")
+        else:
+          flash ("You are not authorized to edit this category!")
+      else:
+        flash("You are not authorized to edit categories!")
+      return allCategories()
     else:
         return render_template('categoryeditmenu.html',
                                category=category,
@@ -66,14 +72,20 @@ def deleteCategory(category_name):
     category = app.db.query(Category).filter(Category.name==category_name).one()
     items = app.db.query(Item).filter(Item.category_id==category.id).all()
     if request.method == 'POST':
-        for item in items:
-            app.db.delete(item)
-            app.db.commit()
-        app.db.delete(category)
-        app.db.commit()
-        categories = app.db.query(Category).all()
-        flash("The category and the items were deleted successfully!")
-        return allCategories()
+      if login_session:
+        if login_session['user_id'] == category.user_id:
+          for item in items:
+              app.db.delete(item)
+              app.db.commit()
+          app.db.delete(category)
+          app.db.commit()
+          flash("The category and the items were deleted successfully!")
+        else: 
+          flash("You are not authorized to delete this category!")
+      else: 
+        flash("You are not authorized to delete categories!")
+      categories = app.db.query(Category).all()
+      return allCategories()
     else:
         return render_template('categoryideletemenu.html',
                                category = category,
@@ -84,26 +96,33 @@ def deleteCategory(category_name):
 @app.route('/categories/new/', methods=['POST','GET'])
 def newCategory():
     if request.method == 'POST':
-        inputName = request.form['name'].strip()
+      inputName = request.form['name'].strip()
+      if login_session:
         if not inputName:
-            flash("Please enter the catgoery name")
-            return render_template('newcategoriemenu.html',
-                                   login_session = login_session)
+          flash("Please enter the catgoery name")
+          return render_template('newcategoriemenu.html',
+                                  login_session = login_session)
+        if app.db.query(Category).filter(Category.name == inputName).all():
+          flash("This category allready exist!")
+          return render_template('newcategoriemenu.html',
+                                  login_session = login_session)
         else:
-            newCategory = Category(
-                name=inputName, user_id = login_session['user_id'])
-            app.db.add(newCategory)
-            app.db.commit()
-            flash("A new category was created successfully!")
-            return allCategories()
+          newCategory = Category(
+            name=inputName, user_id = login_session['user_id'])
+          app.db.add(newCategory)
+          app.db.commit()
+          flash("A new category was created successfully!")
+          return allCategories()
+      else:
+          flash('You are not authorized to create new categories!')
+          return allCategories()
     else:
-        return render_template('newcategoriemenu.html',
-                               login_session = login_session)
+      return render_template('newcategoriemenu.html',
+                              login_session = login_session)
     
 # Display details of a specific item
 
-@app.route('/categories/<string:category_name>/<string:item_name>/',
-           methods=['POST','GET'])
+@app.route('/categories/<string:category_name>/<string:item_name>/')
 def categoryItemDetails(category_name,item_name):
     category = app.db.query(Category).filter(Category.name==category_name).one()
     items = app.db.query(Item).\
@@ -124,20 +143,26 @@ def editCategoryItem(category_name, item_name):
            filter(Item.name==item_name, Item.category_id==category.id).one()
     categories = app.db.query(Category).all()
     if request.method == 'POST':
-        if(request.form['name']<>''):
-            item.name=request.form['name']
-        if(request.form['description']<>''):
-            item.description=request.form['description']
-        if(request.form['picture']<>''):
-            item.picture=request.form['picture']
-        if(request.form['category']<>''):
-            category_name_new=request.form['category']
-            categoryNew = app.db.query(Category).\
-                          filter(Category.name==category_name_new).one()
-            item.category = categoryNew
-        app.db.commit()
-        items = app.db.query(Item).filter(Item.category_id==category.id).all()
-        flash("The item was edited successfully!")
+        if login_session:
+          if login_session['user_id'] == item.user_id:
+            if(request.form['name']<>''):
+                item.name=request.form['name']
+            if(request.form['description']<>''):
+                item.description=request.form['description']
+            if(request.form['picture']<>''):
+                item.picture=request.form['picture']
+            if(request.form['category']<>''):
+                category_name_new=request.form['category']
+                categoryNew = app.db.query(Category).\
+                              filter(Category.name==category_name_new).one()
+                item.category = categoryNew
+                app.db.commit()
+                flash("The item was edited successfully!")
+          else: 
+            flash ("You are not authorized to edit this item!")
+        else: 
+          flash("You are not authorized to edit items!")
+        items = app.db.query(Item).filter(Item.category_id==category.id).all()    
         return render_template('categoryitems.html',
                                category_name=category.name,
                                items=items,
@@ -159,11 +184,17 @@ def deleteCategoryItem(category_name, item_name):
            filter(Item.name==item_name, Item.category_id==category.id).one()
     categories = app.db.query(Category).all()
     if request.method == 'POST':
-        app.db.delete(item)
-        app.db.commit()
-        items = app.db.query(Item).filter(Item.category_id==category.id).all()
-        flash("The item was deleted successfully!")
-        return render_template('categoryitems.html',category_name=category.name,
+      if login_session:
+          if login_session['user_id'] == item.user_id:
+            app.db.delete(item)
+            app.db.commit()
+            flash("The item was deleted successfully!")
+          else: 
+            flash ("You are not authorized to delete this item!")
+      else: 
+          flash("You are not authorized to delete items!")
+      items = app.db.query(Item).filter(Item.category_id==category.id).all()
+      return render_template('categoryitems.html',category_name=category.name,
                                items=items, categories=categories,
                                category=category, login_session=login_session)
     else:
@@ -179,30 +210,45 @@ def newItemInCategory(category_name):
     if request.method == 'POST':
         inputName = request.form['name'].strip()
         inputDescription = request.form['description'].strip()
-        inputEmail = request.form['email'].strip()
-        if not inputName or not inputDescription:
-            flash("Please enter the item name and description")
-            return render_template('newitemincategoriemenu.html',
-                                   category = category,
-                                   login_session=login_session)
+        inputPicture = request.form['picture'].strip()
+        if login_session:
+          if app.db.query(Item).filter(Item.name == inputName, Item.category_id == category.id).all():
+              flash("This item allready exist in this category!")
+              return render_template('newitemincategoriemenu.html',
+                                  category = category,
+                                  login_session=login_session)
+          if not inputName or not inputDescription:
+              flash("Please enter the item name and description")
+              return render_template('newitemincategoriemenu.html',
+                                  category = category,
+                                  login_session=login_session)
+          else:
+              newItem = Item(
+                  name=inputName,
+                  description=inputDescription,
+                  picture=inputPicture,
+                  category_id=category.id,
+                  user_id = login_session['user_id'])
+              app.db.add(newItem)
+              app.db.commit()
+              items = app.db.query(Item.id, Item.name).\
+                      filter(Item.category_id==category.id).all()
+              categories = app.db.query(Category).all()
+              flash("The items was created successfully!")
+              return render_template('categoryitems.html',
+                                     items=items, category_name=category_name,
+                                     categories = categories,
+                                     login_session=login_session)
         else:
-            newItem = Item(
-                name=inputName,
-                description=inputDescription,
-                picture=request.form['picture'],
-                category_id=category.id,
-                user_id = login_session['user_id'])
-            app.db.add(newItem)
-            app.db.commit()
-            items = app.db.query(Item.id, Item.name).\
-                    filter(Item.category_id==category.id).all()
-            categories = app.db.query(Category).all()
-            flash("The items was created successfully!")
-            return render_template('categoryitems.html',
-                                   items=items, category_name=category_name,
-                                   categories = categories,
-                                   login_session=login_session)
+          items = app.db.query(Item.id, Item.name).\
+                      filter(Item.category_id==category.id).all()
+          categories = app.db.query(Category).all()
+          flash("You are not authorized to create new items!")
+          return render_template('categoryitems.html',
+                                     items=items, category_name=category_name,
+                                     categories = categories,
+                                     login_session=login_session)
     else:
         return render_template('newitemincategoriemenu.html',
-                               category = category,
-                               login_session=login_session)
+                                 category = category,
+                                 login_session=login_session)      

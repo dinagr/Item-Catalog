@@ -7,23 +7,18 @@
 <body class="subBcg">
 	<div class = "container">
 		<div class="row headline">
+			<div class="col-md-2 login">
 			{%if login_session.username %}
-			<div class="col-md-2 login">
 				<a class="btn btn-warning btn-sm" href='{{url_for('disconnect') }}' role="button">Disconnect</a>
-			</div>
 			{%else %}
-			<div class="col-md-2 login">
 				<a class="btn btn-warning btn-sm" href='{{url_for('showLogin') }}' role="button">Login</a>
-			</div>
 			{%endif%}
+			</div>
 			<div class="col-md-8">
 				<h1>Catalog App</h1>
 			</div>
 			<div class="col-md-2">
 				<div class="user">{{login_session.username}}</div>
-				{% if login_session.provider %}
-					<div class="user">{{login_session.provider}}</div>
-				{% endif %}
 			</div>
 		</div>
 		{% block content %}
