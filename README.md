@@ -39,3 +39,11 @@ If no user is logged into the app, the app will be in a view only state. </br>
 5. A user can edit/delete items only if he created them.
 6. A user can edit/delete categories only if he created them.
 7. Once a user deletes a category, all the items in this category will be deleted as well (even if they were created by other users)
+
+### API 
+
+####The users can access 3 API endpoins - 
+
+1. All categories at '/JSON' or '/main/JSON'
+2. All items of a category at '/categories/category_name/JSON'
+3. A specific item in category at '/categories/category_name/item_name/JSON' 

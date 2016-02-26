@@ -32,7 +32,7 @@ class Category(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+    user = relationship(User, cascade="delete")
 
 
     @property
@@ -67,7 +67,7 @@ class Item(Base):
             'description' : self.description,
             'id' : self.id,
             'category_id' : self.category_id,
-            'timestmp' : self.timestmp,
+            'timestmp' : self.timestmp.strftime('%d/%m/%Y %H:%M:%S'),
             'picture' : self.picture,
             'user_id' : self.user_id
             }
