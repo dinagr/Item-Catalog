@@ -6,7 +6,7 @@ import datetime
 import random
 
 
-engine = create_engine('sqlite:///categorieitems.db')
+engine = create_engine('postgresql+psycopg2://catalog:catalogLinuxWebServer@localhost/categorieitems')
 
 Base.metadata.bind = engine
  
